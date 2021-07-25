@@ -1,0 +1,34 @@
+import "operand.hsp"
+import "insn.hsp"
+import "../tck/symtab.hsp"
+import "../ast/ast.hsp"
+import "../util/stack.hsp"
+import "../util/hash_table.hsp"
+
+namespace neutrino { namespace ir {
+
+struct ir_ctx {
+	type util::hash_table* name_2_aggregate;
+	type util::hash_table* local_name_2_reg, global_name_2_label;
+
+	unsigned int counter;
+	type util::vector* insns, pre_insns, post_insns;
+
+	type label_operand* curr_header, curr_footer;
+	type label_operand* defer_header, err_defer_header;
+	type util::stack* defer_stack, err_defer_stack;
+	type util::stack* ctx_stack;
+}
+
+func type ir_ctx* ir_ctx_init(type tck::symtab* global);
+func void ir_ctx_delete(type ir_ctx* ic);
+
+func type prog* ir_prog(type ir_ctx* ctx, type ast::prog* pr);
+func type function* ir_fun(type ir_ctx* ctx, type ast::function* f);
+func bool ir_stmt(type ir_ctx* ctx, type ast::stmt* s);
+func type operand* ir_exp(type ir_ctx* ctx, type ast::exp* e, bool lvalue);
+func bool ir_decl(type ir_ctx* ctx, type ast::decl* d);
+func bool ir_pat_nc_assign(type ir_ctx* ctx, type ast::pat* p,
+	type ast::typ* from, type operand* o);
+
+} } // namespace neutrino::ir

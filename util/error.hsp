@@ -1,0 +1,38 @@
+import "../lex/token.hsp"
+import "../lex/lexer.hsp"
+import "../ast/fwd.hsp"
+
+namespace neutrino { namespace util {
+
+func void ice(const char* fnc, const char* msg);
+func void maybe_ice(bool cond, const char* fnc, const char* msg);
+
+namespace error_kind {
+
+static constexpr unsigned int NOTE = 0x1,
+	WARNING = 0x2,
+	ERROR = 0x3;
+
+} // namespace error_kind
+
+func unsigned int num_errors();
+func unsigned int num_warnings();
+func unsigned int num_notes();
+func unsigned int total_messages();
+
+func void report_str(unsigned int kind, const char* msg,
+	type lex::lexer* l,
+	unsigned int start_line, unsigned int end_line,
+	unsigned int start_col, unsigned int end_col,
+	unsigned int start_pos, unsigned int len);
+func void report_token(unsigned int kind, const char* msg,
+	type lex::token* tok);
+func void report_ast_metadata(unsigned int kind, char* msg,
+	type ast::metadata* m, unsigned int pos_start,
+	unsigned int pos_end, bool separate_highlight);
+
+func void disable_reporting();
+func void enable_reporting();
+func bool is_reporting_enabled();
+
+} } // namespace neutrino::util

@@ -1,0 +1,57 @@
+import "../lex/token.hsp"
+import "../lex/lexer.hsp"
+import "../util/vector.hsp"
+import "../ast/ast.hsp"
+import "../util/hash_set.hsp"
+import "../util/stack.hsp"
+
+namespace neutrino { namespace parse {
+
+struct lexer_data {
+	type lex::lexer* lexer;
+	type util::vector* buffer;
+	unsigned int pos;
+	bool is_fresh;
+}
+
+func type lexer_data* lexer_data_init(type lex::lexer* l);
+func void lexer_data_delete(type lexer_data* ld);
+
+struct parser {
+	type util::vector* all_buffers;
+	type util::stack* buffer_stack;
+
+	type util::hash_set* included_uids;
+	type lex::token* final_eof_token;
+}
+
+func type parser* parser_init(type lex::lexer* l);
+func void parser_delete(type parser* p);
+func type lex::token* parser_pop(type parser* p);
+func type lex::token* parser_peek(type parser* p);
+func unsigned int parser_pos(type parser* p);
+func void parser_set_pos(type parser* p, unsigned int pos);
+func type lexer_data* parser_lexer_data(type parser* p);
+func void parser_add_lexer(type parser* p, type lex::lexer* l);
+
+func bool token_accept(type lex::token* tok, unsigned int k);
+
+func type ast::exp* parse_assignment_exp(type parser* p);
+func type ast::exp* parse_exp(type parser* p);
+func type ast::typ* parse_typ(type parser* p);
+func type ast::decl* parse_decl(type parser* p, bool single);
+func type ast::stmt* parse_stmt(type parser* p);
+func type ast::stmt* parse_compound(type parser* p);
+func type ast::stmt* parse_aggregate(type parser* p);
+func type ast::stmt* parse_using(type parser* p);
+func type ast::stmt* parse_include(type parser* p);
+func type ast::stmt* parse_import(type parser* p);
+func type ast::stmt* parse_type_alias(type parser* p);
+func type ast::function* parse_fun(type parser* p, bool is_lambda);
+func type ast::pat* parse_pat(type parser* p);
+func type ast::top_level* parse_top_level(type parser* p);
+func type ast::prog* parse_prog(type parser* p);
+
+func void deref_lexer_data_free(byte* b);
+
+} } // namespace neutrino::parse

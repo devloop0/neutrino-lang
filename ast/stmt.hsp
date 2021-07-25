@@ -1,0 +1,427 @@
+import "fwd.hsp"
+import "../lex/token.hsp"
+import "../util/vector.hsp"
+import "../util/hash_table.hsp"
+
+namespace neutrino { namespace ast {
+
+namespace stmt_kind {
+
+constexpr unsigned int DECL = 0x1,
+	EXP = 0x2,
+	AGGREGATE = 0x3,
+	LABELED = 0x4,
+	COMPOUND = 0x5,
+	SELECTION = 0x6,
+	ITERATION = 0x7,
+	USING = 0x8,
+	USING_NAMESPACE = 0x9,
+	JUMP = 0xa,
+	ASM = 0xb,
+	EMPTY = 0xc,
+	NAMESPACE_ALIAS = 0xd,
+	IMPORT = 0xe,
+	INCLUDE = 0xf,
+	TYPE_ALIAS = 0x10,
+	MATCH = 0x11;
+
+} // namespace stmt_kind
+
+namespace attribute_kind {
+
+constexpr unsigned int DECL = 0x1,
+	USING = 0x2,
+	USING_NAMESPACE = 0x3,
+	IMPORT = 0x4,
+	NAMESPACE_ALIAS = 0x5,
+	FUNCTION = 0x6,
+	NAMESPACE = 0x7,
+	STRUCT = 0x8,	
+	UNION = 0x9,
+	ENUM = 0xa,
+	VARIANT = 0xb,
+	MEMBER = 0xc,
+	TYPE_ALIAS = 0xd;
+
+} // namespace attribute_kind
+
+namespace attribute_value_kind {
+
+constexpr unsigned int PUBLIC = 0x1,
+	EXTERN = 0x2;
+
+} // namespace attribute_value_kind
+
+struct attribute_value {
+	type lex::token* key;
+	type lex::token* value;
+}
+
+struct attribute {
+	type util::vector* attrs_list;
+	type util::hash_table* attrs;
+	type metadata* metadata;
+}
+
+func type attribute* attribute_init(type util::vector* al,
+	type metadata* m);
+func void attribute_delete(type attribute* a);
+
+struct decl_component {
+	bool is_static, is_const;
+	type pat* pat;
+	type typ* typ;
+	type exp* init;
+	type metadata* metadata;
+}
+
+func type decl_component* decl_component_init(type pat* p,
+	type typ* t, type exp* in, type metadata* m, bool is, bool ic);
+func void decl_component_delete(type decl_component* dc);
+
+struct decl {
+	type util::vector* decl_components;
+	type attribute* attribute;
+	type metadata* metadata;
+
+	bool is_static, is_const;
+}
+
+func type decl* decl_init(type attribute* a, bool is, bool ic,
+	type util::vector* dcs, type metadata* m);
+func void decl_delete(type decl* d);
+
+namespace labeled_kind {
+
+constexpr unsigned int CASE = 0x1,
+	DEFAULT = 0x2,
+	LABEL = 0x3;
+
+} // namespace labeled_kind
+
+struct labeled {
+	unsigned int kind;
+	type lex::token* name;
+	type exp* exp;
+	type stmt* stmt;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+	type tck::symtab_value* symtab_value;
+}
+
+func type labeled* labeled_case_init(type exp* c, type stmt* s,
+	type metadata* m);
+func type labeled* labeled_default_init(type stmt* s, type metadata* m);
+func type labeled* labeled_label_init(type lex::token* n, type stmt* s,
+	type metadata* m);
+func void labeled_delete(type labeled* l);
+
+namespace selection_kind {
+
+constexpr unsigned int IF = 0x1,
+	IF_ELSE = 0x2,
+	SWITCH = 0x3;
+
+} // namespace selection_kind
+
+struct selection {
+	unsigned int kind;
+	type exp* exp;
+	type decl* decl;
+	type stmt* stmt1;
+	type stmt* stmt2;
+	type metadata* metadata;
+
+	type tck::symtab* ctx1, ctx2;
+}
+
+func type selection* selection_if_init(type decl* d, type exp* e,
+	type stmt* st, type metadata* m);
+func type selection* selection_if_else_init(type decl* d, type exp* e,
+	type stmt* s1, type stmt* s2, type metadata* m);
+func type selection* selection_switch_init(type decl* d, type exp* e,
+	type stmt* st, type metadata* m);
+func void selection_delete(type selection* s);
+
+namespace iteration_kind {
+
+constexpr unsigned int WHILE = 0x1,
+	DO = 0x2,
+	FOR_EXP = 0x3,
+	FOR_DECL = 0x4;
+
+} // namespace iteration_kind
+
+struct iteration {
+	unsigned int kind;
+
+	type exp* exp1;
+	type exp* exp2;
+	type exp* exp3;
+	
+	type decl* decl;
+
+	type stmt* stmt;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+}
+
+func type iteration* iteration_while_init(type exp* e, type stmt* s,
+	type metadata* m);
+func type iteration* iteration_do_init(type stmt* s, type exp* e,
+	type metadata* m);
+func type iteration* iteration_for_exp_init(type exp* e1, type exp* e2,
+	type exp* e3, type stmt* s, type metadata* m);
+func type iteration* iteration_for_decl_init(type decl* d, type exp* e1,
+	type exp* e2, type stmt* s, type metadata* m);
+func void iteration_delete(type iteration* i);
+
+namespace aggregate_kind {
+
+constexpr unsigned int STRUCT = 0x1,
+	UNION = 0x2,
+	ENUM = 0x3,
+	VARIANT = 0x4;
+
+} // namespace aggregate_kind
+
+namespace aggregate_member_kind {
+
+constexpr unsigned int NONE = 0x1,
+	TYP = 0x2,
+	AGGREGATE = 0x3;
+
+} // namespace aggregate_member_kind
+
+union aggregate_member_types {
+	type stmt* aggregate;
+	type typ* typ;
+}
+
+struct aggregate_member {
+	type attribute* attribute;
+	unsigned int kind;
+	type util::vector* idents;
+	type aggregate_member_types which;
+
+	type util::vector* symtab_values;
+	type ast::metadata* metadata;
+}
+
+func type aggregate_member* aggregate_member_none_init(type attribute* attr,
+	type util::vector* ids, type metadata* m);
+func type aggregate_member* aggregate_member_typ_init(type attribute* attr,
+	type util::vector* ids, type typ* t, type metadata* m);
+func type aggregate_member* aggregate_member_aggregate_init(type attribute* attr,
+	type util::vector* ids, type stmt* a, type metadata* m);
+func void aggregate_member_delete(type aggregate_member* am);
+
+struct aggregate {
+	type attribute* attribute;
+	unsigned int kind;
+	type lex::token* name;
+	type util::vector* members;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+	type tck::symtab_value* symtab_value;
+	type util::vector* enum_symtab_values;
+}
+
+func type aggregate* aggregate_init(type attribute* attr,
+	unsigned int k, type lex::token* n,
+	type util::vector* ms, type metadata* m);
+func void aggregate_delete(type aggregate* a);
+
+namespace jump_kind {
+
+constexpr unsigned int GOTO = 0x1,
+	CONTINUE = 0x2,
+	BREAK = 0x3,
+	RETURN = 0x4,
+	ERR_RETURN = 0x5,
+	DEFER = 0x6,
+	ERR_DEFER = 0x7;
+
+} // namespace jump_kind
+
+struct jump {
+	unsigned int kind;
+	type lex::token* ident;
+	type exp* exp;
+	type metadata* metadata;
+
+	type tck::symtab_value* symtab_value;
+}
+
+func type jump* jump_goto_init(type lex::token* i, type metadata* m);
+func type jump* jump_break_init(type metadata* m);
+func type jump* jump_continue_init(type metadata* m);
+func type jump* jump_defer_return_init(unsigned int k, type exp* e,
+	type metadata* m);
+func void jump_delete(type jump* j);
+
+struct asm_component {
+	type lex::token* string;
+	type qualified_identifier* qualified_identifier;
+	type metadata* metadata;
+}
+
+func type asm_component* asm_component_init(type lex::token* s,
+	type qualified_identifier* qi, type metadata* m);
+func void asm_component_delete(type asm_component* ac);
+
+struct compound {
+	type util::vector* stmts;
+	type tck::symtab* ctx;
+	type metadata* metadata;
+}
+
+func type compound* compound_init(type util::vector* s,
+	type metadata* m);
+func void compound_delete(type compound* c);
+
+struct namespace_alias {
+	type attribute* attribute;
+	type lex::token* to_name;
+	type qualified_identifier* from_name;
+
+	type metadata* metadata;
+}
+
+func type namespace_alias* namespace_alias_init(
+	type attribute* attr, type lex::token* tns,
+	type qualified_identifier* fns, type metadata* m);
+func void namespace_alias_delete(type namespace_alias* na);
+
+struct import_alias_data {
+	type lex::token* from_name;
+	type lex::token* to_name;
+}
+
+func type import_alias_data* import_alias_data_init(type lex::token* f_n,
+	type lex::token* tn);
+func void import_alias_data_delete(type import_alias_data* iad);
+
+struct import_data {
+	type attribute* attribute;
+	type qualified_identifier* module_name;
+	type lex::token* alias_name;
+	bool starred, is_system;
+	type util::vector* member_names;
+	type metadata* metadata;
+}
+
+func type import_data* import_data_init(type attribute* a, bool is,
+	type qualified_identifier* mn, type lex::token* an, bool s,
+	type util::vector* mns, type metadata* m);
+func void import_data_delete(type import_data* id);
+
+struct using_data {
+	type attribute* attribute;
+	type qualified_identifier* qualified_identifier;
+	type metadata* metadata;
+}
+
+func type using_data* using_data_init(type attribute* attr,
+	type qualified_identifier* qi, type metadata* m);
+func void using_data_delete(type using_data* u);
+
+struct type_alias_value {
+	type lex::token* ident;
+	type typ* underlying;
+	type metadata* metadata;
+	type tck::symtab_value* symtab_value;
+}
+
+func type type_alias_value* type_alias_value_init(type lex::token* i,
+	type typ* u, type metadata* m);
+func void type_alias_value_delete(type type_alias_value* tav);
+
+struct type_alias {
+	type attribute* attribute;
+	type util::vector* aliases;
+	type metadata* metadata;
+}
+
+func type type_alias* type_alias_init(type attribute* a, type util::vector* al,
+	type metadata* m);
+func void type_alias_delete(type type_alias* ta);
+
+struct match_branch {
+	type util::vector* pats;
+	type exp* guard;
+	type stmt* body;
+
+	type metadata* metadata;
+	type tck::symtab* ctx;
+}
+
+func type match_branch* match_branch_init(type util::vector* ps,
+	type exp* g, type stmt* b, type metadata* m);
+func void match_branch_delete(type match_branch* mb);
+
+struct match_data {
+	type exp* parent;
+	type util::vector* match_branches;
+
+	type metadata* metadata;
+	type tck::symtab* ctx;
+}
+
+func type match_data* match_data_init(type exp* p, type util::vector* mbs,
+	type metadata* m);
+func void match_data_delete(type match_data* md);
+
+union stmt_types {
+	type decl* decl;
+	type exp* exp;
+	type aggregate* aggregate;
+	type labeled* labeled;
+	type compound* compound;
+	type namespace_alias* namespace_alias;
+	type selection* selection;
+	type iteration* iteration;
+	type jump* jump;
+	type util::vector* asm;
+	type import_data* import_data;
+	type util::vector* includes;
+	type using_data* using_data;
+	type type_alias* type_alias;
+	type match_data* match_data;
+}
+
+struct stmt {
+	unsigned int kind;
+	type stmt_types which;
+	type metadata* metadata;
+}
+
+func type stmt* stmt_decl_init(type decl* d);
+func type stmt* stmt_exp_init(type exp* e);
+func type stmt* stmt_aggregate_init(type aggregate* a);
+func type stmt* stmt_labeled_init(type labeled* l);
+func type stmt* stmt_compound_init(type compound* c);
+func type stmt* stmt_selection_init(type selection* se);
+func type stmt* stmt_iteration_init(type iteration* i);
+func type stmt* stmt_jump_init(type jump* j);
+func type stmt* stmt_using_init(unsigned int k,
+	type using_data* ud);
+func type stmt* stmt_asm_init(type util::vector* a,
+	type metadata* m);
+func type stmt* stmt_empty_init(type metadata* m);
+func type stmt* stmt_namespace_alias_init(type namespace_alias* na,
+	type metadata* m);
+func type stmt* stmt_import_init(type import_data* id);
+func type stmt* stmt_include_init(type util::vector* is, type metadata* m);
+func type stmt* stmt_type_alias_init(type type_alias* ta);
+func type stmt* stmt_match_data_init(type match_data* md);
+func void stmt_delete(type stmt* s);
+
+func void attribute_print(type attribute* a, unsigned int t);
+func void decl_print(type decl* d, unsigned int t);
+func void stmt_print(type stmt* s, unsigned int t);
+
+} } // namespace neutrino::ast

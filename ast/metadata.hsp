@@ -1,0 +1,17 @@
+import "../util/vector.hsp"
+
+namespace neutrino { namespace ast {
+
+struct metadata {
+	type util::vector* token_stream;
+	unsigned int start;
+	unsigned int end;
+}
+
+func type metadata* metadata_init(type util::vector* ts,
+	unsigned int s, unsigned int e);
+func void metadata_delete(type metadata* m);
+
+func type metadata* metadata_copy(type metadata* m);
+
+} } // namespace neutrino::ast

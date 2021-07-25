@@ -1,0 +1,326 @@
+import "fwd.hsp"
+
+import "../lex/token.hsp"
+import "../util/vector.hsp"
+
+namespace neutrino { namespace ast {
+
+namespace value_kind {
+
+constexpr unsigned int LVALUE = 0x1,
+	RVALUE = 0x2,
+	INVALID = 0x3;
+
+} // namespace value_kind
+
+namespace exp_kind {
+
+constexpr unsigned int PRIMARY = 0x1,
+	POSTFIX = 0x2,
+	UNARY = 0x3,
+	BINARY = 0x4,
+	TERNARY = 0x5,
+	PAT_ASSIGN = 0x6;
+
+} // namespace exp_kind
+
+struct qualified_identifier {
+	type util::vector* name;
+	type util::vector* full_name;
+
+	type tck::symtab* ref_ctx;
+	type tck::symtab_value* symtab_value;
+	type metadata* metadata;
+}
+
+func type qualified_identifier* qualified_identifier_init(
+	type util::vector* n, type metadata* m);
+func void qualified_identifier_delete(type qualified_identifier* qi);
+
+namespace primary_kind {
+
+constexpr unsigned int QUALIFIED_IDENTIFIER = 0x1,
+	LITERAL = 0x2,
+	TUPLE = 0x3,
+	ARRAY = 0x4,
+	STMT = 0x5,
+	PARENTHESIZED = 0x6,
+	STRUCT_INIT = 0x7,
+	LAMBDA = 0x8;
+
+} // namespace primary_kind
+
+struct member_init {
+	type lex::token* ident;
+	type exp* init;
+
+	type tck::symtab_value* symtab_value;
+	type metadata* metadata;
+}
+
+func type member_init* member_init_init(type lex::token* i,
+	type exp* in, type metadata* m);
+func void member_init_delete(type member_init* mi);
+
+struct struct_init {
+	type qualified_identifier* qualified_identifier;
+	type util::vector* member_inits;
+	type metadata* metadata;
+}
+
+func type struct_init* struct_init_init(type qualified_identifier* qi,
+	type util::vector* mis, type metadata* m);
+func void struct_init_delete(type struct_init* si);
+
+union primary_types {
+	type qualified_identifier* qualified_identifier;
+	type util::vector* array;
+	type lex::token* literal;
+	type exp* parenthesized;
+	type util::vector* tuple;
+	type struct_init* struct_init;
+	type function* lambda;
+	type stmt* stmt;
+}
+
+struct primary {
+	type primary_types which;
+	unsigned int kind, value_kind;
+	type typ* typ;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type primary* primary_qualified_identifier_init(
+	type qualified_identifier* qi);
+func type primary* primary_array_init(type util::vector* a,
+	type metadata* m);
+func type primary* primary_literal_init(type lex::token* l,
+	type metadata* m);
+func type primary* primary_parenthesized_init(type exp* pa,
+	type metadata* m);
+func type primary* primary_stmt_init(type stmt* s,
+	type metadata* m);
+func type primary* primary_tuple_init(type util::vector* t, type metadata* m);
+func type primary* primary_struct_init_init(type struct_init* si);
+func type primary* primary_lambda_init(type function* f);
+func void primary_delete(type primary* p);
+
+namespace postfix_kind {
+
+constexpr unsigned int INCREMENT = 0x1,
+	DECREMENT = 0x2,
+	DOT = 0x3,
+	ARROW = 0x4,
+	INDEX = 0x5,
+	FUNCTION_CALL = 0x6,
+	AS = 0x7,
+	ADDRESS = 0x8,
+	AT = 0x9,
+	DOT_INDEX = 0xa,
+	ARROW_INDEX = 0xb;
+
+} // namespace postfix_kind
+
+struct member_data {
+	type lex::token* member;
+	bool is_ufcs;
+
+	bool is_resolved_ufcs;
+	type tck::symtab_value* symtab_value;
+}
+
+func type member_data* member_data_init(type lex::token* m, bool iu);
+func void member_data_delete(type member_data* mb);
+
+union postfix_types {
+	type member_data* member_data;
+	type exp* index;
+	type util::vector* arguments;
+	type typ* as_typ;
+}
+
+struct postfix {
+	type exp* base;
+	type postfix_types which;
+	unsigned int kind, value_kind;
+	type postfix* next;
+
+	type typ* typ;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type postfix* postfix_member_access_init(type exp* b,
+	unsigned int k, type member_data* mb, type metadata* md);
+func type postfix* postfix_nullary_init(type exp* b, unsigned int k,
+	type metadata* m);
+func type postfix* postfix_index_init(type exp* b, type exp* i,
+	type metadata* m);
+func type postfix* postfix_arguments_init(type exp* b,
+	type util::vector* a, type metadata* m);
+func type postfix* postfix_as_init(type exp* b, type typ* a,
+	type metadata* m);
+func void postfix_delete(type postfix* p);
+
+namespace unary_kind {
+
+constexpr unsigned int INCREMENT = 0x1,
+	DECREMENT = 0x2,
+	PLUS = 0x3,
+	MINUS = 0x4,
+	SIZEOF_TYP = 0x5,
+	SIZEOF_EXP = 0x6,
+	NOT = 0x7,
+	ALIGNOF_TYP = 0x8,
+	ALIGNOF_EXP = 0x9,
+	CMPL = 0xa,
+	NEW = 0xb,
+	RESV = 0xc,
+	STK = 0xd,
+	DELETE = 0xe;
+
+} // namespace unary_kind
+
+struct alloc_info {
+	type ast::typ* typ;
+	type ast::exp* exp;
+}
+
+func type alloc_info* alloc_info_init(type typ* t, type exp* e);
+func void alloc_info_delete(type alloc_info* ai);
+
+union unary_types {
+	type typ* of_typ;
+	type exp* of_exp;
+	type exp* base;
+	type alloc_info* alloc_info;
+	type exp* delete_exp;
+}
+
+struct unary {
+	type unary_types which;
+	unsigned int kind, value_kind;
+	type typ* typ;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type unary* unary_nullary_init(unsigned int k, type exp* b,
+	type metadata* m);
+func type unary* unary_typ_init(unsigned int k, type typ* t,
+	type metadata* m);
+func type unary* unary_exp_init(unsigned int k, type exp* e,
+	type metadata* m);
+func type unary* unary_alloc_info_init(unsigned int k, type alloc_info* ai,
+	type metadata* m);
+func type unary* unary_delete_init(type exp* e, type metadata* m);
+func void unary_delete(type unary* u);
+
+namespace binary_op_kind {
+
+constexpr unsigned int MULT = 0x1,
+	DIV = 0x2,
+	MOD = 0x3,
+	ADD = 0x4,
+	SUB = 0x5,
+	SHL = 0x6,
+	SHR = 0x7,
+	GT = 0x8,
+	GTE = 0x9,
+	LT = 0xa,
+	LTE = 0xb,
+	EQ_EQ = 0xc,
+	NE = 0xd,
+	BAND = 0xe,
+	BXOR = 0xf,
+	BOR = 0x10,
+	LAND = 0x11,
+	LOR = 0x12,
+	
+	EQ = 0x13,
+	MULT_EQ = 0x14,
+	DIV_EQ = 0x15,
+	MOD_EQ = 0x16,
+	ADD_EQ = 0x17,
+	SUB_EQ = 0x18,
+	SHL_EQ = 0x19,
+	SHR_EQ = 0x1a,
+	BAND_EQ = 0x1b,
+	BXOR_EQ = 0x1c,
+	BOR_EQ = 0x1d;
+
+} // namespace binary_kind
+
+struct binary {
+	type exp* lhs;
+	type exp* rhs;
+	unsigned int op, value_kind;
+	type lex::token* op_token;
+	type typ* typ;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type binary* binary_init(type exp* l, type lex::token* ot,
+	unsigned int o, type exp* r, type metadata* m);
+func void binary_delete(type binary* b);
+
+struct ternary {
+	type exp* cond;
+	type exp* lhs;
+	type exp* rhs;
+
+	unsigned int value_kind;
+	type typ* typ;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type ternary* ternary_init(type exp* c, type exp* l, type exp* r,
+	type metadata* m);
+func void ternary_delete(type ternary* t);
+
+struct pat_assign {
+	type pat* lhs;
+	type exp* rhs;
+
+	type metadata* metadata;
+	bool is_constant;
+	type typ* typ;
+}
+
+func type pat_assign* pat_assign_init(type pat* l, type exp* r,
+	type metadata* m);
+func void pat_assign_delete(type pat_assign* pa);
+
+union exp_types {
+	type primary* primary;
+	type postfix* postfix;
+	type unary* unary;
+	type binary* binary;
+	type ternary* ternary;
+	type pat_assign* pat_assign;
+}
+
+struct exp {
+	type exp_types which;
+	type typ* typ;
+	unsigned int kind, value_kind;
+	type metadata* metadata;
+	bool is_constant;
+}
+
+func type exp* exp_primary_init(type primary* p);
+func type exp* exp_postfix_init(type postfix* p);
+func type exp* exp_unary_init(type unary* u);
+func type exp* exp_binary_init(type binary* b);
+func type exp* exp_ternary_init(type ternary* t);
+func type exp* exp_pat_assign_init(type pat_assign* pa);
+func void exp_delete(type exp* e);
+
+func void print_qualified_identifier(type qualified_identifier* qia,
+	unsigned int t);
+func void exp_print(type exp* e, unsigned int t);
+
+} } // namespace neutrino::ast

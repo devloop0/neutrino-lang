@@ -1,0 +1,171 @@
+import "../util/hash_table.hsp"
+import "../util/vector.hsp"
+import "../ast/ast.hsp"
+
+namespace neutrino { namespace tck {
+
+namespace symtab_kind {
+
+constexpr unsigned int GLOBAL = 0x1,
+	LOCAL = 0x2,
+	LOOP = 0x3,
+	SWITCH = 0x4,
+	STRUCT = 0x5,
+	UNION = 0x6,
+	ENUM = 0x7,
+	NAMESPACE = 0x8,
+	FUN = 0x9,
+	VARIANT = 0xa,
+	LAMBDA = 0xb;
+	
+} // namespace symtab_kind
+
+namespace symtab_info_kind {
+
+constexpr unsigned int SWITCH = 0x1,
+	FUN = 0x2,
+	GLOBAL = 0x3;
+
+} // namespace symtab_info_kind
+
+union symtab_info_types {
+	type ast::selection* switch_stmt;
+	type ast::function* function;
+	type util::hash_table* ufcs_table;
+}
+
+struct symtab_info {
+	unsigned int kind;
+	type ast::typ* resolved_parent_typ;
+	type symtab_info_types which;
+}
+
+func type symtab_info* symtab_info_switch_init(type ast::selection* sw, type ast::typ* rpt);
+func type symtab_info* symtab_info_fun_init(type ast::function* f, type ast::typ* rpt);
+func type symtab_info* symtab_info_global_init();
+func void symtab_info_delete(type symtab_info* s);
+
+struct symtab {
+	unsigned int kind;
+	type lex::token* name;
+	type symtab* parent, global;
+	type symtab_info* symtab_info;
+
+	type util::vector* unnamed_children;
+	type util::hash_table* symbols;
+}
+
+namespace symtab_value_kind {
+
+constexpr unsigned int SYMBOL = 0x1,
+	STRUCT = 0x2,
+	UNION = 0x3,
+	ENUM = 0x4,
+	FUN = 0x5,
+	NAMESPACE = 0x6,
+	VARIANT = 0x7,
+	TYPE_ALIAS = 0x8,
+	LAMBDA = 0x9;
+
+} // namespace lookup_kind
+
+namespace symtab_value_ast_node_kind {
+
+static constexpr unsigned int FUN = 0x1,
+	AGGREGATE = 0x2,
+	DECL = 0x3,
+	NAMESPACE = 0x4,
+	ENUM_SYMBOL = 0x5,
+	LABEL = 0x6,
+	MEMBER = 0x7,
+	VARIANT_CONSTRUCTOR = 0x8,
+	TYPE_ALIAS = 0x9,
+	LAMBDA = 0xa;
+
+} // namespace symtab_value_ast_node_kind
+
+union symtab_value_ast_node {
+	type ast::function* function;
+	type ast::function* lambda;
+	type ast::aggregate* aggregate;
+	type lex::token* decl_symbol;
+	type ast::namespace_decls* namespace_decls;
+	type lex::token* enum_symbol;
+	type lex::token* member_symbol;
+	type lex::token* variant_constructor;
+	type ast::labeled* label;
+	type ast::type_alias_value* type_alias_value;
+}
+
+struct symtab_value {
+	unsigned int kind, ast_node_kind;
+	bool fwd, cross_ref;
+	type lex::token* name;
+
+	type ast::typ* typ;
+	type symtab* members, enclosing;
+	type symtab_value_ast_node ast_node;
+	type util::hash_table* attrs;
+	bool is_constant;
+}
+
+func type symtab_value* symtab_value_lambda_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type ast::function* lc);
+func type symtab_value* symtab_value_type_alias_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type ast::type_alias_value* tav);
+func type symtab_value* symtab_value_decl_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type lex::token* ds);
+func type symtab_value* symtab_value_member_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type lex::token* ms);
+func type symtab_value* symtab_value_nullary_variant_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type lex::token* m);
+func type symtab_value* symtab_value_variant_constructor_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type lex::token* m);
+func type symtab_value* symtab_value_enum_symbol_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type lex::token* es);
+func type symtab_value* symtab_value_label_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type ast::labeled* l);
+func type symtab_value* symtab_value_fun_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type ast::function* fc);
+func type symtab_value* symtab_value_aggregate_init(type symtab* e, bool f,
+	bool cr, unsigned int k, type lex::token* n, type ast::typ* t,
+	type ast::aggregate* a);
+func type symtab_value* symtab_value_namespace_init(type symtab* e, bool f,
+	bool cr, type lex::token* n, type ast::typ* t,
+	type ast::namespace_decls* nd);
+func type symtab_value* symtab_value_cross_ref_init(
+	type symtab_value* sv, type lex::token* to_name);
+
+func void symtab_value_delete(type symtab_value* sv);
+func void symtab_value_free(byte* b);
+
+func type util::hash_table* symtab_ht_init();
+
+func type symtab* symtab_global_init();
+func type symtab* symtab_init(unsigned int k, type lex::token* n,
+	type symtab* g, type symtab* p);
+func void symtab_delete(type symtab* s);
+func void deref_symtab_free(byte* b);
+
+func type symtab_value* symtab_lookup_unqualified(type symtab* ctx,
+	type lex::token* n, bool restrict, bool skip_from_lambda);
+func type symtab* symtab_lookup_unqualified_ctx(type symtab* ctx,
+	type lex::token* n, bool restrict, bool skip_from_lambda);
+func type symtab_value* symtab_lookup_qualified(type symtab* ctx,
+	type util::vector* n, type ast::metadata* m, bool skip_from_lambda);
+func type symtab* symtab_lookup_qualified_ctx(type symtab* ctx,
+	type util::vector* n, type ast::metadata* m, bool skip_from_lambda);
+
+func void to_fully_qualified(type symtab* ctx,
+	type ast::qualified_identifier* qi);
+
+} } // namespace neutrino::tck

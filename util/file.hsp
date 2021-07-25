@@ -1,0 +1,15 @@
+namespace neutrino { namespace util {
+
+static const char* PATH_SEP = "/";
+
+func bool file_exists(const char* path);
+func bool dir_exists(const char* path);
+
+func char* read_file(const char* path);
+func char* getcwd();
+
+func unsigned int get_inode(const char* path);
+
+func char* pathcat(const char* first, const char* rest);
+
+} } // namespace neutrino::util

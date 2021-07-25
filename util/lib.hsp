@@ -1,0 +1,17 @@
+import "string.hsp"
+
+namespace neutrino { namespace util {
+
+func void inplace_rev_a(char* buf, unsigned int len);
+func void inplace_rev_ustr(type string* s);
+
+func void itoa_na(int i, char* buf);
+func void utoa_na(unsigned int u, char* buf);
+
+func char* itoa(int i);
+func char* utoa(unsigned int u);
+
+func void itoustr(int i, type string* s);
+func void utoustr(unsigned int u, type string* s);
+
+} } // namespace neutrino::util

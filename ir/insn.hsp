@@ -1,0 +1,182 @@
+import "operand.hsp"
+import "../util/vector.hsp"
+
+namespace neutrino { namespace ir {
+
+namespace insn_op_kind {
+
+constexpr unsigned int LABEL = 0x1,
+	MOVB = 0x2,
+	MOVH = 0x3,
+	MOVW = 0x4,
+	MOVL = 0x5,
+	MOVS = 0x6,
+	MOVD = 0x7,
+
+	EXTSBL = 0x8, EXTUBL = 0x9, EXTSBH = 0xa, EXTUBH = 0xb,
+	EXTSBW = 0xc, EXTUBW = 0xd,
+
+	EXTSHL = 0x10, EXTUHL = 0x11, EXTSHW = 0x12, EXTUHW = 0x13,
+
+	EXTSWL = 0x14, EXTUWL = 0x15,
+
+	TRUNCLB = 0x16, TRUNCLH = 0x17, TRUNCLW = 0x18,
+	TRUNCWB = 0x19, TRUNCWH = 0x1a,
+	TRUNCHB = 0x1b,
+
+	CVTSD = 0x1c, CVTDS = 0x1d,
+
+	CVTSSB = 0x1e, CVTSUB = 0x1f, CVTSSH = 0x20, CVTSUH = 0x21,
+	CVTSSW = 0x22, CVTSUW = 0x23, CVTSSL = 0x24, CVTSUL = 0x25,
+
+	CVTDSB = 0x26, CVTDUB = 0x27, CVTDSH = 0x28, CVTDUH = 0x29,
+	CVTDSW = 0x2a, CVTDUW = 0x2b, CVTDSL = 0x2c, CVTDUL = 0x2d,
+
+	CVTSBS = 0x2e, CVTUBS = 0x2f, CVTSHS = 0x30, CVTUHS = 0x31,
+	CVTSWS = 0x32, CVTUWS = 0x33, CVTSLS = 0x34, CVTULS = 0x35,
+
+	CVTSBD = 0x36, CVTUBD = 0x37, CVTSHD = 0x38, CVTUHD = 0x39,
+	CVTSWD = 0x3a, CVTUWD = 0x3b, CVTSLD = 0x3c, CVTULD = 0x3d,
+
+	ALLOCA = 0x3e,
+
+	STOREB = 0x3f, STOREH = 0x40, STOREW = 0x41, STOREL = 0x42, STORED = 0x43,
+	STORES = 0x44,
+
+	LOADB = 0x45, LOADH = 0x46, LOADW = 0x47, LOADL = 0x48, LOADD = 0x49,
+	LOADS = 0x4a,
+
+	MEMCPY = 0x4b,
+
+	ADDB = 0x4c, ADDH = 0x4d, ADDW = 0x4e, ADDL = 0x4f, ADDS = 0x50, ADDD = 0x51;
+// TODO
+
+} // namespace insn_kind
+
+struct insn {
+	unsigned int op_kind;
+	type operand* lhs, rhs1, rhs2;
+	type util::vector* multi;
+	char* asm;
+}
+
+func type insn* insn_nullary_init(unsigned int ok);
+func type insn* insn_unary_init(unsigned int ok, type operand* l, type operand* r1);
+func type insn* insn_binary_init(unsigned int ok, type operand* l, type operand* r1, type operand* r2);
+func type insn* insn_multi_init(unsigned int ok, type operand* l, type operand* r1,
+	type operand* r2, type util::vector* m);
+func type insn* insn_asm_init(unsigned int ok, char* a, type operand* l);
+func void insn_delete(type insn* i);
+func type insn* insn_copy(type insn* i);
+func void insn_print(type insn* i);
+
+struct static_data_member {
+	unsigned int alignment;
+	unsigned int primitive;
+	type immediate_operand* immediate_operand;
+	unsigned int num;
+}
+
+func type static_data_member* static_data_member_init(unsigned int a, unsigned int pk,
+	type immediate_operand* io, unsigned int n);
+func void static_data_member_delete(type static_data_member* sdm);
+func type static_data_member* static_data_member_copy(type static_data_member* sdm);
+func void static_data_member_print(type static_data_member* sdm);
+
+struct static_data {
+	bool is_local;
+	char* label;
+	type util::vector* data;
+}
+
+func type static_data* static_data_init(bool il, char* l, type util::vector* d);
+func void static_data_delete(type static_data* sd);
+func type static_data* static_data_copy(type static_data* sd);
+func void static_data_print(type static_data* sd);
+
+struct function_parameter {
+	type typ* typ;
+	type register_operand* register_operand;
+}
+
+func type function_parameter* function_parameter_init(type typ* t,
+	type register_operand* ro);
+func void function_parameter_delete(type function_parameter* fp);
+func type function_parameter* function_parameter_copy(type function_parameter* fp);
+func void function_parameter_print(type function_parameter* fp);
+
+struct function {
+	bool is_local;
+	char* name;
+	type util::vector* parameters;
+	bool is_variadic;
+	type typ* return_typ;
+	type util::vector* insns;
+}
+
+func type function* function_init(bool il, char* n, type util::vector* ps,
+	bool iv, type typ* rt, type util::vector* is);
+func void function_delete(type function* f);
+func type function* function_copy(type function* f);
+func void function_print(type function* f);
+
+struct aggregate_member_type {
+	unsigned int alignment;
+	type typ* typ;
+	unsigned int num;
+}
+
+func type aggregate_member_type* aggregate_member_type_init(unsigned int a,
+	type typ* t, unsigned int n);
+func void aggregate_member_type_delete(type aggregate_member_type* amt);
+func type aggregate_member_type* aggregate_member_type_copy(
+	type aggregate_member_type* amt);
+
+struct aggregate_type {
+	char* name;
+	unsigned int alignment;
+	type util::vector* members;
+}
+
+func type aggregate_type* aggregate_type_init(char* n, unsigned int a,
+	type util::vector* m);
+func void aggregate_type_delete(type aggregate_type* at);
+func type aggregate_type* aggregate_type_copy(type aggregate_type* at);
+func void aggregate_type_print(type aggregate_type* at);
+
+namespace top_level_kind {
+
+constexpr unsigned int STATIC_DATA = 0x1,
+	FUNCTION = 0x2,
+	AGGREGATE_TYPE = 0x3;
+
+} // namespace top_level_kind
+
+union top_level_types {
+	type static_data* static_data;
+	type function* function;
+	type aggregate_type* aggregate_type;
+}
+
+struct top_level {
+	unsigned int kind;
+	type top_level_types which;
+}
+
+func type top_level* top_level_static_data_init(type static_data* sd);
+func type top_level* top_level_function_init(type function* f);
+func type top_level* top_level_aggregate_type_init(type aggregate_type* at);
+func void top_level_delete(type top_level* tl);
+func type top_level* top_level_copy(type top_level* tl);
+func void top_level_print(type top_level* tl);
+
+struct prog {
+	type util::vector* top_levels;
+}
+
+func type prog* prog_init(type util::vector* tls);
+func void prog_delete(type prog* p);
+func type prog* prog_copy(type prog* p);
+func void prog_print(type prog* p);
+
+} } // namespace neutrino::ir

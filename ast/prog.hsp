@@ -1,0 +1,105 @@
+import "fwd.hsp"
+import "../util/vector.hsp"
+import "../lex/token.hsp"
+
+namespace neutrino { namespace ast {
+
+namespace top_level_kind {
+
+constexpr unsigned int FUN = 0x1,
+	IMPORT = 0x2,
+	NAMESPACE = 0x4,
+	USING = 0x5,
+	USING_NAMESPACE = 0x6,
+	DECL = 0x7,
+	AGGREGATE = 0x8,
+	EMPTY = 0xa,
+	NAMESPACE_ALIAS = 0xb,
+	INCLUDE = 0xc,
+	TYPE_ALIAS = 0xd;
+
+} // namespace prog_kind
+
+struct capture_data {
+	bool is_mut, is_pointer, is_pointee_mut;
+	type lex::token* ident;
+
+	type metadata* metadata;
+	type typ* typ;
+	type tck::symtab_value* symtab_value;
+}
+
+func type capture_data* capture_data_init(bool im, bool ip, bool ipm,
+	type lex::token* i, type metadata* m);
+func void capture_data_delete(type capture_data* cd);
+
+struct function {
+	type attribute* attribute;
+	type lex::token* name;
+	type util::vector* parameters;
+	bool is_variadic;
+	type typ* return_typ;
+	type util::vector* capture_list;
+	type stmt* body;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+	type tck::symtab_value* symtab_value;
+}
+
+func type function* function_init(type attribute* a, type lex::token* i,
+	type util::vector* pars, bool iv, type typ* rt, type util::vector* cl,
+	type stmt* b, type metadata* m);
+func void function_delete(type function* f);
+
+struct namespace_decls {
+	type attribute* attribute;
+	type qualified_identifier* name;
+	type util::vector* decls;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+	type tck::symtab_value* symtab_value;
+}
+
+func type namespace_decls* namespace_decls_init(
+	type attribute* attribute,
+	type qualified_identifier* n,
+	type util::vector* ds, type metadata* m);
+func void namespace_decls_delete(type namespace_decls* nd);
+
+union top_level_types {
+	type function* function;
+	type stmt* stmt;
+	type namespace_decls* namespace_decls;
+	type namespace_alias* namespace_alias;
+}
+
+struct top_level {
+	unsigned int kind;
+	type top_level_types which;
+	type metadata* metadata;
+}
+
+func type top_level* top_level_fun_init(type function* f);
+func type top_level* top_level_stmt_init(type stmt* s);
+func type top_level* top_level_namespace_init(type namespace_decls* nd);
+func type top_level* top_level_empty_init(type metadata* m);
+func type top_level* top_level_namespace_alias_init(type namespace_alias* na);
+func void top_level_delete(type top_level* tl);
+
+struct prog {
+	type util::vector* top_levels;
+	type metadata* metadata;
+
+	type tck::symtab* ctx;
+}
+
+func type prog* prog_init(type util::vector* tls, type metadata* m);
+func void prog_delete(type prog* p);
+
+func void function_print(type function* f, unsigned int t);
+func void top_level_print(type top_level* tl, unsigned int t);
+func void prog_print(type prog* p, unsigned int t);
+
+} } // namespace neutrino::ast

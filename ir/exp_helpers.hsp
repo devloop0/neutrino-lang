@@ -1,0 +1,9 @@
+import "ir.hsp"
+import "operand.hsp"
+import "../ast/ast.hsp"
+
+namespace neutrino { namespace ir {
+
+func type operand* ir_exp_primary(type ir_ctx* ctx, type ast::primary* p, bool lvalue);
+
+} } // namespace neutrino::ir

@@ -1,0 +1,38 @@
+import "../tck/symtab.hsp"
+import "../ast/ast.hsp"
+import "ir.hsp"
+
+namespace neutrino { namespace ir {
+
+func void deref_aggregate_member_type_free(byte* b);
+func void deref_operand_free(byte* b);
+func void deref_static_data_member_free(byte* b);
+func void deref_function_parameter_free(byte* b);
+func void deref_insn_free(byte* b);
+func void deref_typ_free(byte* b);
+func void deref_top_level_free(byte* b);
+
+func void typ_free(byte* b);
+func void top_level_free(byte* b);
+
+func bool is_global(type tck::symtab_value* sv);
+func char* mangle_name(type tck::symtab_value* sv);
+
+struct size_data {
+	unsigned int alignment;
+	unsigned int size;
+}
+
+func type size_data* size_data_init(unsigned int a, unsigned int s);
+func void size_data_delete(type size_data* sd);
+
+func void n_size_data(type ast::typ* t);
+func type typ* ast_2_ir_typ(type ir_ctx* ctx, type ast::typ* t);
+func type operand* ir_cast(type ir_ctx* ctx, type operand* src,
+	type ast::typ* from, type ast::typ* to);
+func type operand* ir_load(type ir_ctx* ctx, type ast::typ* final_typ,
+	unsigned int off, type operand* loc);
+func void ir_store(type ir_ctx* ctx, type ast::typ* final_typ,
+	type operand* src, unsigned int off, type operand* loc);
+
+} } // namespace neutrino::ir

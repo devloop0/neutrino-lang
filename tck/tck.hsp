@@ -1,0 +1,33 @@
+import "symtab.hsp"
+import "../lex/token.hsp"
+import "../ast/ast.hsp"
+import "../util/hash_table.hsp"
+
+namespace neutrino { namespace tck {
+
+namespace pat_ctx_kind {
+
+constexpr unsigned int DECL = 0x1,
+	CONST = 0x2,
+	EXP = 0x3,
+	MATCH = 0x4;
+
+} // namespace pat_ctx_kind
+
+func bool tck_aggregate(type symtab* ctx, type ast::aggregate* a);
+func bool tck_stmt(type symtab* ctx, type ast::stmt* s);
+func bool tck_exp(type symtab* ctx, type ast::exp* e);
+func type ast::typ* tck_typ(type symtab* ctx, type ast::typ* t);
+func bool tck_decl(type symtab* ctx, type ast::decl* d, bool ce);
+func type ast::typ* tck_function(type symtab* ctx, type ast::function* f);
+func bool tck_alias(type symtab* ctx, unsigned int k,
+	type lex::token* to_name, type ast::qualified_identifier* from_name,
+	type ast::attribute* attr, type ast::metadata* m);
+func bool tck_type_alias(type symtab* ctx, type ast::type_alias* ta);
+func bool tck_top_level(type symtab* ctx, type ast::top_level* tl);
+func bool tck_prog(type symtab* ctx, type ast::prog* p);
+func bool tck_pat(type symtab* ctx, unsigned int pck, type ast::pat* p, type ast::typ* t,
+	type ast::attribute* attr);
+func type util::hash_table* tck_attribute(type symtab* ctx, unsigned int which, type ast::attribute* a);
+
+} } // namespace neutrino::tck

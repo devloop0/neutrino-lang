@@ -1,0 +1,36 @@
+namespace neutrino { namespace util {
+
+struct string {
+	char* data;
+	unsigned int length;
+}
+
+func type string* string_init(char* d);
+func type string* string_init_move(char* d);
+func void string_delete(type string* s);
+func unsigned int string_length(type string* s);
+func char* string_data(type string* s);
+func char string_at(type string* s, unsigned int at);
+
+func type string* string_add(type string* s1, type string* s2);
+func type string* string_cadd(const char* c, type string* s);
+func type string* string_addc(type string* s, const char* c);
+func type string* string_chadd(char c, type string* s);
+func type string* string_addch(type string* s, char c);
+
+func void string_cat(type string* s1, type string* s2);
+func void string_catc(type string* s, const char* c);
+func void string_ccat(const char* c, type string* s);
+func void string_catch(type string* s, char c);
+func void string_chcat(char c, type string* s);
+
+func char* string_csubstr(type string* s, unsigned int start,
+	unsigned int length);
+func type string* string_substr(type string* s, unsigned int start,
+	unsigned int length);
+
+func int string_cmp(type string* s1, type string* s2);
+func int string_cmpc(type string* s, const char* c);
+func int string_ccmp(const char* c, type string* s);
+
+} } // namespace neutrino::util

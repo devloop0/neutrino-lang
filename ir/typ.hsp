@@ -1,0 +1,41 @@
+import "../util/vector.hsp"
+
+namespace neutrino { namespace ir {
+
+namespace primitive_kind {
+
+constexpr unsigned int BYTE = 0x1,
+	HALF = 0x2,
+	WORD = 0x3,
+	LONG = 0x4,
+	SINGLE = 0x5,
+	DOUBLE = 0x6;
+
+}
+
+namespace typ_kind {
+
+constexpr unsigned int PRIMITIVE = 0x1,
+	AGGREGATE_NAME = 0x2;
+
+} // namespace typ_kind
+
+union typ_types {
+	unsigned int primitive;
+	char* aggregate_name;
+}
+
+struct typ {
+	unsigned int kind;
+	type typ_types which;
+}
+
+func type typ* typ_primitive_init(unsigned int pk);
+func type typ* typ_aggregate_name_init(char* an);
+func void typ_delete(type typ* t);
+func type typ* typ_copy(type typ* t);
+func void typ_print(type typ* t);
+
+func void typ_primitive_print(unsigned int pk);
+
+} } // namespace neutrino::ir

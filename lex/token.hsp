@@ -1,0 +1,217 @@
+namespace neutrino { namespace lex {
+
+namespace token_kind {
+
+static constexpr unsigned int EXCL = 0x1,
+	EXCL_EQ = 0x2,
+	AT = 0x3,
+	MINUS_GT = 0x4,
+	DOLLAR = 0x5,
+	PERCENT = 0x6,
+	PERCENT_EQ = 0x7,
+	CARET = 0x8,
+	CARET_EQ = 0x9,
+	AMP = 0xa,
+	AMP_EQ = 0xb,
+	STAR = 0xc,
+	STAR_EQ = 0xd,
+	OPEN_PAR = 0xe,
+	CLOSE_PAR = 0xf,
+	MINUS = 0x10,
+	MINUS_EQ = 0x11,
+	PLUS = 0x12,
+	PLUS_EQ = 0x13,
+	EQ = 0x14,
+	EQ_EQ = 0x15,
+	OPEN_BRACE = 0x16,
+	OPEN_BRACKET = 0x17,
+	CLOSE_BRACE = 0x18,
+	CLOSE_BRACKET = 0x19,
+	BAR = 0x1a,
+	BAR_EQ = 0x1b,
+	COLON = 0x1c,
+	COLON_COLON = 0x1d,
+	SEMICOLON = 0x1e,
+	CHARACTER = 0x1f,
+	STRING = 0x20,
+	LT = 0x21,
+	LT_EQ = 0x22,
+	COMMA = 0x23,
+	GT = 0x24,
+	GT_EQ = 0x25,
+	DOT = 0x26,
+	DOT_DOT_DOT = 0x27,
+	QUESTION_MARK = 0x28,
+	SLASH = 0x29,
+	SLASH_EQ = 0x30,
+	INTEGER = 0x31,
+	DECIMAL = 0x32,
+
+	IDENT = 0x33,
+	BYTE = 0x34,
+	CHAR = 0x35,
+	SHORT = 0x36,
+	INT = 0x37,
+	LONG = 0x38,
+	FLOAT = 0x39,
+	DOUBLE = 0x3a,
+	SIGNED = 0x3b,
+	UNSIGNED = 0x3c,
+	MUT = 0x3e,
+	STATIC = 0x3d,
+	CONST = 0x3f,
+	TYPE = 0x40,
+	STRUCT = 0x41,
+	UNION = 0x42,
+	FN = 0x43,
+	AS = 0x44,
+	BOOL = 0x45,
+	VOID = 0x46,
+	NEW = 0x48,
+	DELETE = 0x49,
+	SIZEOF = 0x4a,
+	USING = 0x4b,
+	NAMESPACE = 0x4c,
+	INVALID = 0x4e,
+	FALSE = 0x4f,
+	IMPORT = 0x50,
+	ASM = 0x52,
+	TRUE = 0x53,
+	PLUS_PLUS = 0x54,
+	MINUS_MINUS = 0x55,
+	GT_GT = 0x56,
+	GT_GT_EQ = 0x57,
+	LT_LT = 0x58,
+	LT_LT_EQ = 0x59,
+	TILDE = 0x5a,
+	AMP_AMP = 0x5b,
+	BAR_BAR = 0x5c,
+	FUN = 0x5d,
+	IF = 0x5e,
+	ELSE = 0x5f,
+	WHILE = 0x60,
+	FOR = 0x61,
+	BREAK = 0x62,
+	CONTINUE = 0x63,
+	DO = 0x64,
+	SWITCH = 0x65,
+	CASE = 0x66,
+	RETURN = 0x67,
+	ALIGNOF = 0x68,
+	STK = 0x69,
+	RESV = 0x6a,
+	GOTO = 0x6b,
+	ENUM = 0x6c,
+	LABEL = 0x6d,
+	EOF = 0x6e,
+	DEFAULT = 0x6f,
+	DEFER = 0x70,
+	ERR_DEFER = 0x71,
+	ERR_RETURN = 0x72,
+	INCLUDE = 0x73,
+	MODULE = 0x74,
+	LET = 0x75,
+	UNDERSCORE = 0x77,
+	VARIANT = 0x79,
+	BACKTICK = 0x7a,
+	BACKSLASH = 0x7b,
+	MATCH = 0x77;
+
+} // namespace token_kind
+
+union value_types {
+	unsigned int integral_value;
+	double decimal_value;
+	char* string_value;
+}
+
+namespace value_kind {
+
+static constexpr unsigned int NONE = 0x1,
+	INTEGRAL = 0x2,
+	DECIMAL = 0x3,
+	STRING = 0x4;
+
+} // namespace value_kind
+
+namespace suffix_kind {
+
+static constexpr unsigned int FLOAT = 0x1,
+	DOUBLE = 0x2,
+	UNSIGNED_INT = 0x3,
+	UNSIGNED_LONG = 0x4,
+	SIGNED_LONG = 0x5,
+	UNSIGNED_SHORT = 0x6,
+	SIGNED_SHORT = 0x7,
+	NONE = 0x8;
+
+} // namespace suffix_kind
+
+struct lexer;
+
+struct token {
+	type lexer* ctx;
+	unsigned int start_line_num, end_line_num;
+	unsigned int start_col, end_col;
+	unsigned int start_pos, length;
+	char* text;
+
+	unsigned int kind, value_kind, suffix_kind;
+	type value_types value;
+}
+
+func type token* token_basic_init(
+	type lexer* c, 
+	unsigned int sln, unsigned int eln,
+	unsigned int sc, unsigned int ec,
+	unsigned int sp, unsigned int l,
+	unsigned int k
+);
+func type token* token_literal_int_init(
+	type lexer* c,
+	unsigned int sln, unsigned int eln,
+	unsigned int sc, unsigned int ec,
+	unsigned int sp, unsigned int l,
+	unsigned int k, unsigned int v, unsigned int sk
+);
+func type token* token_literal_decimal_init(
+	type lexer* c,
+	unsigned int sln, unsigned int eln,
+	unsigned int sc, unsigned int ec,
+	unsigned int sp, unsigned int l,
+	unsigned int k, double v, unsigned int sk
+);
+func type token* token_literal_string_init(
+	type lexer* c,
+	unsigned int sln, unsigned int eln,
+	unsigned int sc, unsigned int ec,
+	unsigned int sp, unsigned int l,
+	unsigned int k, char* s, unsigned int sk
+);
+func type token* token_invalid_init(
+	type lexer* c,
+	unsigned int sln, unsigned int eln,
+	unsigned int sc, unsigned int ec,
+	unsigned int sp, unsigned int l
+);
+func void token_delete(type token* tok);
+
+func type lexer* token_ctx(type token* tok);
+
+func unsigned int token_start_line(type token* tok);
+func unsigned int token_end_line(type token* tok);
+func unsigned int token_start_col(type token* tok);
+func unsigned int token_end_col(type token* tok);
+func unsigned int token_pos(type token* tok);
+func unsigned int token_length(type token* tok);
+func char* token_text(type token* tok);
+
+func unsigned int token_tkind(type token* tok);
+func unsigned int token_vkind(type token* tok);
+func unsigned int token_skind(type token* tok);
+
+func type value_types* token_value(type token* tok);
+
+func void token_print(type token* tok);
+
+} } // namespace neutrino::lex

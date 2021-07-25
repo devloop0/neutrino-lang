@@ -1,0 +1,36 @@
+import "../lex/lexer.hsp"
+
+namespace neutrino { namespace util {
+
+struct error_counts {
+	unsigned int num_errors, num_warnings, num_notes;
+}
+
+static char* reset_esc = "\033[0m";
+static char* bold_esc = "\033[1m";
+static char* underline_esc = "\033[4m";
+static char* green_esc = "\033[0;32m";
+static char* red_esc = "\033[0;31m";
+static char* purple_esc = "\033[0;35m";
+static char* blue_esc = "\033[0;34m";
+static char* yellow_esc = "\033[0;33m";
+
+static constexpr unsigned int ERR_CTX_LIMIT = 20;
+static constexpr unsigned int HIGHLIGHT_CTX_LIMIT = 80;
+static constexpr unsigned int TAB_WIDTH = 4;
+static constexpr unsigned int LINES_LIMIT = 5;
+
+func char* error_kind2str(unsigned int k);
+func char* error_kind2color_esc(unsigned int k);
+func void print_error_header(unsigned int kind, const char* msg,
+	type lex::lexer* l, unsigned int start_line, unsigned int start_col);
+func void print_src_helper(unsigned int true_start,
+	unsigned int highlight_off, unsigned int num_to_highlight,
+	unsigned int post_highlight, bool cut_off,
+	char* src, unsigned int src_len);
+func void print_line_num_prefix(unsigned int curr_line,
+	unsigned int max_line_num_len);
+func void print_empty_prefix(unsigned int max_line_num_len);
+func void error_kind_update_count(unsigned int k);
+
+} } // namespace neutrino::util

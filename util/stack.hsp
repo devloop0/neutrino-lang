@@ -1,0 +1,22 @@
+import "vector.hsp"
+
+namespace neutrino { namespace util {
+
+struct stack {
+	type vector* buffer;
+}
+
+func type stack* stack_init(unsigned int elem_size, fn void(byte*) ff);
+func void stack_delete(type stack* s);
+func byte* stack_at(type stack* s, unsigned int at);
+func unsigned int stack_size(type stack* s);
+func byte* stack_data(type stack* s);
+func unsigned int stack_elem_size(type stack* s);
+func byte* stack_find(type stack* s, const byte* b,
+	fn bool(const byte*, const byte*) ef);
+
+func void stack_push(type stack* s, const byte* b);
+func void stack_pop(type stack* s);
+func byte* stack_top(type stack* s);
+
+} } // namespace neutrino::util

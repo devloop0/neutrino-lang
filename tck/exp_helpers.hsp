@@ -1,0 +1,14 @@
+import "symtab.hsp"
+import "../ast/ast.hsp"
+
+namespace neutrino { namespace tck {
+
+func bool tck_exp_primary(type symtab* ctx, type ast::primary* p);
+func bool tck_exp_postfix(type symtab* ctx, type ast::postfix* p);
+func bool tck_exp_unary(type symtab* ctx, type ast::unary* u);
+func bool tck_exp_binary(type symtab* ctx, type ast::binary* b);
+func bool tck_exp_ternary(type symtab* ctx, type ast::ternary* t);
+
+func bool tck_cast(type symtab* ctx, type ast::typ* from_typ, type ast::typ* to_typ);
+
+} } // namespace neutrino::tck

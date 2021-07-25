@@ -1,0 +1,33 @@
+import "hash_table.hsp"
+
+namespace neutrino { namespace util {
+
+struct hash_set {
+	type hash_table* ht;
+}
+
+func type hash_set* hs_init(
+	fn unsigned int(const byte*) hf,
+	fn bool(const byte*, const byte*) ef,
+	fn void(byte*) kff
+);
+func void hs_delete(type hash_set* hs);
+
+func void hs_add(type hash_set* hs, byte* key);
+func bool hs_remove(type hash_set* hs, byte* key);
+func bool hs_contains(type hash_set* hs, byte* key);
+func unsigned int hs_size(type hash_set* hs);
+
+struct hash_set_iterator {
+	type hash_table_iterator* ht_it;
+	type hash_set* hs;
+}
+
+func type hash_set_iterator* hs_iter_init(type hash_set* hs);
+func void hs_iter_delete(type hash_set_iterator* hs_it);
+func void hs_iter_advance(type hash_set_iterator* hs_it);
+func void hs_iter_reset(type hash_set_iterator* hs_it);
+func bool hs_iter_done(type hash_set_iterator* hs_it);
+func byte* hs_iter_curr(type hash_set_iterator* hs_it);
+
+} } // namespace neutrino::util

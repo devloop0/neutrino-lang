@@ -1,0 +1,25 @@
+namespace neutrino { namespace util {
+
+struct vector {
+	byte* buffer;
+	unsigned int capacity, size, elem_size;
+	fn void(byte*) free_func;
+}
+
+func type vector* vector_init(unsigned int elem_size,
+	fn void(byte*) ff);
+func unsigned int vector_size(type vector* v);
+func byte* vector_data(type vector* v);
+func void vector_delete(type vector* v);
+func byte* vector_at(type vector* v, unsigned int i);
+func unsigned int vector_elem_size(type vector* v);
+func void vector_append(type vector* v, const byte* b);
+func void vector_insert(type vector* v, unsigned int at, const byte* b);
+func void vector_pop(type vector* v);
+func bool vector_empty(type vector* v);
+func void vector_remove(type vector* v, unsigned int at);
+
+func byte* vector_find(type vector* v, const byte* b,
+	fn bool(const byte*, const byte*) ef);
+
+} } // namespace neutrino::util

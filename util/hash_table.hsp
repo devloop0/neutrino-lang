@@ -1,0 +1,47 @@
+namespace neutrino { namespace util {
+
+struct hash_table_entry {
+	byte* key;
+	byte* value;
+	bool check;
+}
+
+struct hash_table {
+	byte* array;
+	unsigned int capacity, size;
+	fn unsigned int(const byte*) hash_func;
+	fn bool(const byte*, const byte*) eq_func;
+	fn void(byte*) key_free_func, val_free_func;
+}
+
+func type hash_table* ht_init(
+	fn unsigned int(const byte*) hf,
+	fn bool(const byte*, const byte*) ef,
+	fn void(byte*) kff,
+	fn void(byte*) vff
+);
+func void ht_delete(type hash_table* ht);
+func unsigned int ht_size(type hash_table* ht);
+func void ht_set(type hash_table* ht, byte* key, byte* val);
+func bool ht_get(type hash_table* ht, byte* key, byte** out);
+func bool ht_remove(type hash_table* ht, byte* key);
+func bool ht_contains(type hash_table* ht, byte* key);
+
+struct hash_table_iterator {
+	unsigned int array_index, elem_index;
+	type hash_table* ht;
+}
+
+func type hash_table_iterator* ht_iter_init(type hash_table* ht);
+func void ht_iter_delete(type hash_table_iterator* ht_it);
+func void ht_iter_advance(type hash_table_iterator* ht_it);
+func void ht_iter_reset(type hash_table_iterator* ht_it);
+func bool ht_iter_done(type hash_table_iterator* ht_it);
+func type hash_table_entry* ht_iter_curr(type hash_table_iterator* ht_it);
+
+func void ht_dump(type hash_table* ht,
+	fn void(const byte*) print_key,
+	fn void(const byte*) print_val
+);
+
+} } // namespace neutrino::util

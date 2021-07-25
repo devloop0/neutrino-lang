@@ -1,0 +1,39 @@
+import "../ast/ast.hsp"
+import "../util/string.hsp"
+import "../util/hash_table.hsp"
+import "symtab.hsp"
+
+namespace neutrino { namespace tck {
+
+func bool typ_compare(type symtab* ctx,
+	type ast::typ* t1, type ast::typ* t2,
+	bool force_equality, bool directionality);
+func type util::hash_table* prim_typ_promotion_table();
+
+func type ast::typ_qualifiers* typ_qualifiers_copy(
+	type ast::typ_qualifiers* tqs);
+func type ast::typ* typ_copy(type ast::typ* t);
+
+func bool is_primitive(type ast::typ* t, unsigned int k);
+func bool is_pointer(type ast::typ* t);
+func bool is_integral(type ast::typ* t);
+func bool is_floating_point(type ast::typ* t);
+func bool is_numeric(type ast::typ* t);
+func bool is_mut(type ast::typ_qualifiers* tqs);
+func void set_mut(type ast::typ_qualifiers* tqs, bool b);
+func type ast::typ* literal2typ(type lex::token* lit);
+func type ast::typ_qualifiers* mut_non_pointer_typ_qualifiers_init();
+
+func void typ_human_readable(type ast::typ* t, type util::string* s);
+
+func unsigned int qident2token_index(type util::vector* n,
+	unsigned int index);
+
+func bool prepopulate_decl_labels(type symtab* ctx, type ast::decl* d);
+func bool prepopulate_exp_labels(type symtab* ctx, type ast::exp* e);
+func bool prepopulate_stmt_labels(type symtab* ctx, type ast::stmt* s);
+func bool prepopulate_pat_labels(type symtab* ctx, type ast::pat* p);
+
+func bool attribute_compare(type ast::attribute* a1, type ast::attribute* a2);
+
+} } // namespace neutrino::tck

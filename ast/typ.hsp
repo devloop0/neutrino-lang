@@ -1,0 +1,93 @@
+import "../util/vector.hsp"
+import "fwd.hsp"
+
+namespace neutrino { namespace ast {
+
+namespace typ_kind {
+
+constexpr unsigned int PRIMITIVE = 0x1,
+	AGGREGATE_NAME = 0x2,
+	FN_TYP = 0x3,
+	TUP = 0x4,
+	LAMBDA = 0x5;
+
+} // namespace typ_kind
+
+namespace primitive_kind {
+
+constexpr unsigned int BOOL = 0x1,
+	SIGNED_CHAR = 0x2,
+	UNSIGNED_CHAR = 0x3,
+	SIGNED_BYTE = 0x4,
+	UNSIGNED_BYTE = 0x5,
+	SIGNED_SHORT = 0x6,
+	UNSIGNED_SHORT = 0x7,
+	SIGNED_INT = 0x8,
+	UNSIGNED_INT = 0x9,
+	SIGNED_LONG = 0xa,
+	UNSIGNED_LONG = 0xb,
+	FLOAT = 0xc,
+	DOUBLE = 0xd,
+	VOID = 0xe;
+
+} // namespace primitive_kind
+
+struct typ_qualifiers {
+	type util::vector* qualifiers;
+	bool none_specified;
+}
+
+func type typ_qualifiers* typ_qualifiers_init(type util::vector* q);
+func void typ_qualifiers_delete(type typ_qualifiers* tq);
+
+struct fn_typ {
+	type util::vector* parameter_typs;
+	bool is_variadic;
+	type typ* return_typ;
+}
+
+func type fn_typ* fn_typ_init(type util::vector* pts, bool iv, type typ* r);
+func void fn_typ_delete(type fn_typ * ft);
+
+struct lambda_typ {
+	type typ* signature;
+	unsigned int unique_identifier;
+	bool has_capture_list;
+}
+
+func type lambda_typ* lambda_typ_init(type typ* s, unsigned int uid,
+	bool hcl);
+func void lambda_typ_delete(type lambda_typ* lt);
+
+union typ_types {
+	unsigned int primitive;
+	type qualified_identifier* aggregate_name;
+	type fn_typ* fn_typ;
+	type util::vector* tup_typ;
+	type lambda_typ* lambda_typ;
+}
+
+struct typ {
+	type typ_qualifiers* typ_qualifiers;
+	type typ_types which;
+	unsigned int kind;
+	type metadata* metadata;
+
+	type ir::size_data* size_data;
+}
+
+func type typ* typ_primitive_init(type typ_qualifiers* tq,
+	unsigned int p, type metadata* m);
+func type typ* typ_aggregate_name_init(type typ_qualifiers* tq,
+	type qualified_identifier* an, type metadata* m);
+func type typ* typ_fn_typ_init(type typ_qualifiers* tq,
+	type fn_typ* ft, type metadata* m);
+func type typ* typ_tup_init(type typ_qualifiers* tq,
+	type util::vector* tt, type metadata* m);
+func type typ* typ_lambda_typ_init(type typ_qualifiers* tq,
+	type lambda_typ* lt, type metadata* m);
+func void typ_delete(type typ* t);
+
+func void typ_print(type typ* t, unsigned int ta);
+
+} } // namespace neutrino::ast

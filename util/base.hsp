@@ -1,0 +1,9 @@
+namespace neutrino { namespace util {
+
+func byte* n_malloc(unsigned int sz);
+func void n_free(byte* b);
+func byte* n_realloc(byte* r, unsigned int sz);
+func byte* n_calloc(unsigned int n, unsigned int sz);
+func char* n_strdup(const char* str);
+
+} } // namespace neutrino::util

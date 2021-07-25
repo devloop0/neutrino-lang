@@ -1,0 +1,28 @@
+namespace neutrino { namespace tck {
+
+struct symtab;
+struct symtab_value;
+
+} } // namespace neutrino::tck
+
+namespace neutrino { namespace ir {
+
+struct size_data;
+
+} } // namespace neutrino::ir
+
+namespace neutrino { namespace ast {
+
+struct qualified_identifier;
+struct attribute;
+struct exp;
+struct typ;
+struct stmt;
+struct decl;
+struct top_level;
+struct prog;
+struct metadata;
+struct pat;
+struct function;
+
+} } // namespace neutrino::ast

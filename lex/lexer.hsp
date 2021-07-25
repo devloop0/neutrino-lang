@@ -1,0 +1,26 @@
+import "../util/string.hsp"
+import "../util/hash_table.hsp"
+import "token.hsp"
+
+namespace neutrino { namespace lex {
+
+struct lexer {
+	type util::string* file_name;
+	type util::string* src;
+	type util::hash_table* kw2id;
+	unsigned int pos;
+	unsigned int line, col;
+
+	unsigned int unique_identifier;
+}
+
+func type lexer* lexer_init(type util::string* file_name, unsigned int uid,
+	type util::string* src);
+func void lexer_delete(type lexer* l);
+func type util::string* lexer_source(type lexer* l);
+func type util::string* lexer_file_name(type lexer* l);
+func unsigned int lexer_unique_identifier(type lexer* l);
+
+func type token* lex(type lexer* l);
+
+} } // namespace neutrino::lex

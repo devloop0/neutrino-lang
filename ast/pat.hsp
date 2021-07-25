@@ -1,0 +1,164 @@
+import "fwd.hsp"
+
+import "../util/vector.hsp"
+import "../lex/token.hsp"
+
+namespace neutrino { namespace ast {
+
+namespace pat_kind {
+
+constexpr unsigned int LITERAL = 0x1,
+	IDENT = 0x2,
+	NESTED = 0x3,
+	TUPLE = 0x4,
+	RANGE = 0x5,
+	WILDCARD = 0x6,
+	EXP = 0x7,
+	CONSTRUCTOR = 0x8,
+	STRUCT = 0x9;
+
+} // namespace pat_kind
+
+struct ident_pat {
+	bool is_mut;
+	type lex::token* ident;
+	type typ* to_typ;
+
+	type metadata* metadata;
+	type tck::symtab_value* symtab_value;
+	type typ* typ;
+}
+
+func type ident_pat* ident_pat_init(bool im, type lex::token* i,
+	type typ* tt, type metadata* m);
+func void ident_pat_delete(type ident_pat* ip);
+
+namespace tuple_ignore_kind {
+
+constexpr unsigned int NONE = 0x1,
+	BEGINNING = 0x2,
+	MIDDLE = 0x3,
+	END = 0x4;
+
+} // namespace tuple_ignore_kind
+
+struct tuple_pat {
+	unsigned int ignore_kind;
+	type util::vector* first, last;
+
+	type metadata* metadata;
+	type util::vector* first_typs, last_typs;
+}
+
+func type tuple_pat* tuple_pat_init(unsigned int ik, type util::vector* f,
+	type util::vector* l, type metadata* m);
+func void tuple_pat_delete(type tuple_pat* tp);
+
+namespace range_bound_kind {
+
+constexpr unsigned int LITERAL = 0x1,
+	QUALIFIED_IDENTIFIER = 0x2;
+
+} // namespace range_bound_kind
+
+union range_bound_types {
+	type lex::token* literal;
+	type qualified_identifier* qualified_identifier;
+}
+
+struct range_bound {
+	bool inclusive;
+	unsigned int kind;
+	type range_bound_types which;
+
+	type metadata* metadata;
+	type typ* typ;
+}
+
+func type range_bound* range_bound_literal_init(type lex::token* l, bool i,
+	type metadata* m);
+func type range_bound* range_bound_qualified_identifier_init(type qualified_identifier* qi,
+	bool i, type metadata* m);
+func void range_bound_delete(type range_bound* rb);
+
+struct range_pat {
+	type range_bound* start, end;
+
+	type metadata* metadata;
+}
+
+func type range_pat* range_pat_init(type range_bound* srb, type range_bound* erb,
+	type metadata* m);
+func void range_pat_delete(type range_pat* rp);
+
+struct constructor_pat {
+	type qualified_identifier* constructor;
+	type util::vector* nested;
+
+	type metadata* metadata;
+	type typ* typ;
+}
+
+func type constructor_pat* constructor_pat_init(type qualified_identifier* qi,
+	type util::vector* n, type metadata* m);
+func void constructor_pat_delete(type constructor_pat* cp);
+
+struct member_pat {
+	bool is_mut;
+	type lex::token* member;
+	type pat* nested;
+
+	type metadata* metadata;
+	type tck::symtab_value* symtab_value;
+	type typ* typ;
+}
+
+func type member_pat* member_pat_init(bool im, type lex::token* m, type pat* n,
+	type metadata* md);
+func void member_pat_delete(type member_pat* mp);
+
+struct struct_pat {
+	type qualified_identifier* qualified_identifier;
+	type util::vector* member_pats;
+
+	type metadata* metadata;
+	type typ* typ;
+}
+
+func type struct_pat* struct_pat_init(type qualified_identifier* qi,
+	type util::vector* mps, type metadata* m);
+func void struct_pat_delete(type struct_pat* sp);
+
+union pat_types {
+	type lex::token* literal;
+	type ident_pat* ident_pat;
+	type pat* nested;
+	type tuple_pat* tuple_pat;
+	type range_pat* range_pat;
+	type exp* exp;
+	type constructor_pat* constructor_pat;
+	type struct_pat* struct_pat;
+}
+
+struct pat {
+	unsigned int kind;
+	type pat_types which;
+
+	type metadata* metadata;
+	type typ* typ;
+}
+
+func type pat* pat_literal_init(type lex::token* l, type metadata* m);
+func type pat* pat_ident_init(type ident_pat* ip);
+func type pat* pat_nested_init(type pat* n, type metadata* m);
+func type pat* pat_tuple_init(type tuple_pat* tp);
+func type pat* pat_range_init(type range_pat* rp);
+func type pat* pat_wildcard_init(type metadata* m);
+func type pat* pat_exp_init(type exp* e, type metadata* m);
+func type pat* pat_constructor_init(type constructor_pat* cp);
+func type pat* pat_struct_init(type struct_pat* sp);
+func void pat_delete(type pat* p);
+
+func void pat_print(type pat* p, unsigned int t);
+
+} } // namespace neutrino::ast

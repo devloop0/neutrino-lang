@@ -1,0 +1,77 @@
+import "typ.hsp"
+
+namespace neutrino { namespace ir {
+
+struct register_operand {
+	unsigned int num;
+}
+
+func type register_operand* register_operand_init(unsigned int n);
+func void register_operand_delete(type register_operand* ro);
+func type register_operand* register_operand_copy(type register_operand* ro);
+func void register_operand_print(type register_operand* ro);
+
+namespace immediate_operand_kind {
+
+constexpr unsigned int INTEGRAL = 0x1,
+	FLOATING = 0x2;
+
+} // namespace immediate_operand_kind
+
+union immediate_value_types {
+	unsigned int w;
+	double d;
+}
+
+struct immediate_operand {
+	unsigned int kind;
+	type immediate_value_types which;
+}
+
+func type immediate_operand* immediate_operand_integral_init(unsigned int w);
+func type immediate_operand* immediate_operand_floating_init(double d);
+func void immediate_operand_delete(type immediate_operand* io);
+func type immediate_operand* immediate_operand_copy(type immediate_operand* io);
+func void immediate_operand_print(type immediate_operand* io);
+
+struct label_operand {
+	char* label;
+}
+
+func type label_operand* label_operand_init(char* l);
+func void label_operand_delete(type label_operand* lo);
+func type label_operand* label_operand_copy(type label_operand* lo);
+func void label_operand_print(type label_operand* lo);
+
+namespace operand_kind {
+
+constexpr unsigned int REGISTER = 0x1,
+	IMMEDIATE = 0x2,
+	LABEL = 0x3;
+
+} // namespace operand_kind
+
+union operand_types {
+	type register_operand* register_operand;
+	type immediate_operand* immediate_operand;
+	type label_operand* label_operand;
+}
+
+struct operand {
+	unsigned int kind;
+	type operand_types which;
+
+	type typ* typ;
+}
+
+func type operand* operand_register_init(type register_operand* ro,
+	type typ* t);
+func type operand* operand_immediate_init(type immediate_operand* io,
+	type typ* t);
+func type operand* operand_label_init(type label_operand* lo,
+	type typ* t);
+func void operand_delete(type operand* o);
+func type operand* operand_copy(type operand* o);
+func void operand_print(type operand* o);
+
+} } // namespace neutrino::ir

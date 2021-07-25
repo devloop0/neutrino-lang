@@ -1,0 +1,7 @@
+namespace neutrino { namespace util {
+
+func double fipow(double a, unsigned int n);
+
+func unsigned int ulen10(unsigned int u);
+
+} } // namespace neutrino::util

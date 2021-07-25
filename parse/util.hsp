@@ -1,0 +1,43 @@
+import "../util/vector.hsp"
+import "../lex/token.hsp"
+import "parser.hsp"
+import "../ast/ast.hsp"
+import "../util/string.hsp"
+
+namespace neutrino { namespace parse {
+
+static const char* HEADER_EXT = ".nh";
+
+func type ast::metadata* metadata_parser_init(unsigned int spos,
+	type parser* p);
+
+func void deref_token_free(byte* b);
+func void deref_exp_free(byte* b);
+func void deref_typ_free(byte* b);
+func void deref_stmt_free(byte* b);
+func void deref_asm_component_free(byte* b);
+func void deref_decl_component_free(byte* b);
+func void deref_decl_free(byte* b);
+func void deref_top_level_free(byte* b);
+func void deref_qualified_identifier_free(byte* b);
+func void deref_import_alias_data_free(byte *b);
+func void deref_member_init_free(byte* b);
+func void deref_aggregate_member_free(byte* b);
+func void deref_pat_free(byte* b);
+func void deref_member_pat_free(byte* b);
+func void deref_type_alias_value_free(byte* b);
+func void deref_capture_data_free(byte* b);
+func void deref_match_branch_free(byte* b);
+
+func void token_free(byte* b);
+func void exp_free(byte* b);
+func void typ_free(byte* b);
+func void stmt_free(byte* b);
+
+func type ast::attribute* parse_attribute(type parser* p);
+func type ast::qualified_identifier* parse_qualified_identifier(
+	type parser* p);
+
+func type util::string* resolve_include(type parser* p, type lex::token* f);
+
+} } // namespace neutrino::parse

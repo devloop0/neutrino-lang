@@ -1,0 +1,40 @@
+namespace neutrino { namespace util {
+
+func void no_free(byte* b);
+func void generic_free(byte* b);
+func void str_free(byte* b);
+func void ustr_free(byte* b);
+func void vector_free(byte* b);
+
+func void deref_str_free(byte* b);
+func void deref_ustr_free(byte* b);
+func void deref_vector_free(byte* b);
+
+func bool int_eq(const byte* a, const byte* b);
+func bool uint_eq(const byte* a, const byte* b);
+func bool str_eq(const byte* a, const byte* b);
+func bool ustr_eq(const byte* a, const byte* b);
+
+func bool deref_int_eq(const byte* a, const byte* b);
+func bool deref_uint_eq(const byte* a, const byte* b);
+func bool deref_str_eq(const byte* a, const byte* b);
+func bool deref_ustr_eq(const byte* a, const byte* b);
+
+func unsigned int int_hash(const byte* a);
+func unsigned int uint_hash(const byte* a);
+func unsigned int str_hash(const byte* a);
+func unsigned int ustr_hash(const byte* a);
+
+func void print_ustr(const byte* a);
+func void print_str(const byte* a);
+func void print_int(const byte* a);
+func void print_hex(const byte* a);
+func void print_uint(const byte* a);
+
+func void deref_print_ustr(const byte* a);
+func void deref_print_str(const byte* a);
+func void deref_print_int(const byte* a);
+func void deref_print_hex(const byte* a);
+func void deref_print_uint(const byte* a);
+
+} } // namespace neutrino::util
