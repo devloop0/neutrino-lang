@@ -132,7 +132,7 @@ fun main() : i32 {
 }
 ```
 
-The error here is that `unwrap` returns a `* i32` which is a constant pointer to constant bytes. However, in `main`, we dereference (`@`), and increment the result of the `unwrap` procedure, which is invalid, since we can dereference and change the pointee of a constant pointer.
+The error here is that `unwrap` returns a `* i32` which is a constant pointer to constant bytes. However, in `main`, we dereference (`@`), and increment the result of the `unwrap` procedure, which is invalid, since we can't dereference and change the pointee of a constant pointer.
 
 Here is the error message for reference:
 ```
