@@ -528,14 +528,21 @@ func type symtab* symtab_lookup_qualified_ctx(type symtab* ctx,
 			skip_from_lambda);
 		start_ctx = tmp_slh.ctx;
 
-		if (util::vector_size(n) == 1)
-			return start_ctx;
+		if (util::vector_size(n) == 1) {
+			if (tmp_slh.ctx == NULL as type symtab*
+				|| tmp_slh.val == NULL as type symtab_value*) {
+				return start_ctx;
+			}
+			return tmp_slh.val->enclosing;
+		}
 		start_ctx = first_res->members;
 	}
 
 	type symtab_lookup_helper slh;
 	symtab_lookup_qualified_helper(start_ctx, n, 1, m, slh$, true, skip_from_lambda);
-	return slh.ctx;
+	if (slh.ctx == NULL as type symtab* || slh.val == NULL as type symtab_value*)
+		return slh.ctx;
+	return slh.val->enclosing;
 }
 
 func[static] void symtab_lookup_unqualified_helper(type symtab* ctx,
@@ -583,7 +590,9 @@ func type symtab* symtab_lookup_unqualified_ctx(type symtab* ctx,
 	type lex::token* n, bool restrict, bool skip_from_lambda) {
 	type symtab_lookup_helper slh;
 	symtab_lookup_unqualified_helper(ctx, n, restrict, slh$, skip_from_lambda);
-	return slh.ctx;
+	if (slh.ctx == NULL as type symtab* || slh.val == NULL as type symtab_value*)
+		return slh.ctx;
+	return slh.val->enclosing;
 }
 
 func void to_fully_qualified(type symtab* ctx,
