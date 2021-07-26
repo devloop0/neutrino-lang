@@ -34,10 +34,12 @@ Consider the following erroneous program:
 
 ```
 namespace testing::types {
-	type i32 = signed int;
 
-	struct Point { x, y: i32; }
-	struct Rect { a, b : Point; }
+type i32 = signed int;
+
+struct Point { x, y: i32; }
+struct Rect { a, b : Point; }
+
 } // namespace testing::types
 
 using namespace testing::types;
